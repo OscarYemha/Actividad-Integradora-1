@@ -51,6 +51,7 @@ namespace Actividad_Integradora_1
             if (dgvPersonas.CurrentRow == null)
             {
                 dgvAutosDePersonas.DataSource = null;
+                lblTotalAutos.Text = "El valor total de los autos es de: $0.00";
                 return;
             }
 
@@ -63,26 +64,20 @@ namespace Actividad_Integradora_1
                 dgvAutosDePersonas.DataSource = personaSeleccionada.Lista_de_autos();
             }
 
+            dgvAutosDePersonas.ClearSelection();
+            dgvAutosDePersonas.CurrentCell = null;
+
             decimal total = 0;
             foreach (Auto auto in personaSeleccionada.Lista_de_autos())
             {
                 total = total + auto.Precio;
             }
              lblTotalAutos.Text = $"Valor total de los autos de {personaSeleccionada.Apellido}, {personaSeleccionada.Nombre}: ${total.ToString("N2")}";
-
-            dgvAutosDePersonas.ClearSelection();
-            dgvAutosDePersonas.CurrentCell = null;
         }
 
         private void ActualizarGrillaVistaGeneral()
         {
             List<AutoVista> listaVista = new List<AutoVista>();
-
-            if (dgvAutos.CurrentRow == null)
-            {
-                dgvVistaGeneral.DataSource = null;
-                return;
-            }
 
             foreach (Auto auto in autos)
             {
@@ -109,7 +104,7 @@ namespace Actividad_Integradora_1
 
             dgvVistaGeneral.DataSource = null;
             dgvVistaGeneral.DataSource = listaVista;
-
+                
             dgvVistaGeneral.ClearSelection();
             dgvVistaGeneral.CurrentCell = null;
         }
