@@ -1,53 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Actividad_Integradora_1
 {
     public partial class Form1 : Form
     {
-        private bool actualizandoGrillaPersonas;
+        // Listas principales donde se almacenan las personas y los autos
         private List<Persona> personas;
         private List<Auto> autos;
+        // Evita ejecutar SelectionChanged mientras se está actualizando
+        // el origen de datos de la grilla de personas
+        private bool actualizandoGrillaPersonas;
 
         public Form1()
         {
             InitializeComponent();
-
+            // Iniciliza las listas principales de la aplicación
             personas = new List<Persona>();
             autos = new List<Auto>();
         }
 
+        // Actualiza la grilla principal de personas
         private void ActualizarGrillaPersonas()
-        {
+        {   // Evita que SelectionChanged se ejecute durante la recarga
             actualizandoGrillaPersonas = true;
 
             dgvPersonas.DataSource = null;
             dgvPersonas.DataSource = personas;
 
+            // Deja la grilla sin una fila seleccionada automáticamente
             dgvPersonas.ClearSelection();
             dgvPersonas.CurrentCell = null;
 
             actualizandoGrillaPersonas = false;
         }
 
+        // Actualiza la grilla principal de autos
         private void ActualizarGrillaAutos()
         {
             dgvAutos.DataSource = null;
             dgvAutos.DataSource = autos;
 
+            // Deja la grilla sin una fila seleccionada auutomáticamente
             dgvAutos.ClearSelection();
             dgvAutos.CurrentCell = null;
         }
 
+        // Muestra los autos pertenecientes a la persona seleccionada
+        // y calcula el valor total de los mismos.
         private void ActualizarGrillaAutosDePersonas()
         {
+            // Si no hay una persona seleccionada, limpia la grilla y el total
             if (dgvPersonas.CurrentRow == null)
             {
                 dgvAutosDePersonas.DataSource = null;
@@ -67,6 +71,7 @@ namespace Actividad_Integradora_1
             dgvAutosDePersonas.ClearSelection();
             dgvAutosDePersonas.CurrentCell = null;
 
+            // Calcula la suma de los precios de todos los autos de la persona
             decimal total = 0;
             foreach (Auto auto in personaSeleccionada.Lista_de_autos())
             {
@@ -75,6 +80,8 @@ namespace Actividad_Integradora_1
              lblTotalAutos.Text = $"Valor total de los autos de {personaSeleccionada.Apellido}, {personaSeleccionada.Nombre}: ${total.ToString("N2")}";
         }
 
+        // Genera la vista general de autos combinando los datos
+        // de cada auto con los datos de su dueño.
         private void ActualizarGrillaVistaGeneral()
         {
             List<AutoVista> listaVista = new List<AutoVista>();
@@ -88,6 +95,7 @@ namespace Actividad_Integradora_1
                 autoVista.Modelo = auto.Modelo;
                 autoVista.Patente = auto.Patente;
 
+                // Si el auto tiene dueño, agrega sus datos a la vista
                 if(auto.Dueño() != null)
                 {
                     autoVista.DNI = auto.Dueño().DNI;
@@ -95,6 +103,7 @@ namespace Actividad_Integradora_1
                 }
                 else
                 {
+                    // Permite mostrar también los autos que todavía no tiene dueño
                     autoVista.DNI = "--------";
                     autoVista.ApellidoNombre = "Sin dueño";
                 }
@@ -104,6 +113,10 @@ namespace Actividad_Integradora_1
 
             dgvVistaGeneral.DataSource = null;
             dgvVistaGeneral.DataSource = listaVista;
+
+            // Modifica únicamente los textos visibles de los encabezados
+            dgvVistaGeneral.Columns["DNI"].HeaderText = "DNI del dueño";
+            dgvVistaGeneral.Columns["ApellidoNombre"].HeaderText = "Apellido, nombre";
                 
             dgvVistaGeneral.ClearSelection();
             dgvVistaGeneral.CurrentCell = null;
@@ -111,12 +124,13 @@ namespace Actividad_Integradora_1
 
         private void btnAgregarPersona_Click(object sender, EventArgs e)
         {
+            // Abre el formulario y le pasa la lista para validar DNIs duplicados
             FormPersona formulario = new FormPersona(personas);
 
             if(formulario.ShowDialog() == DialogResult.OK)
             {
                 try
-                {
+                {   // Crea y agrega la nueva persona con los datos ya validados
                     Persona persona = new Persona(
                         formulario.DNI,
                         formulario.Nombre,
@@ -137,12 +151,13 @@ namespace Actividad_Integradora_1
 
         private void btnAgregarAuto_Click(object sender, EventArgs e)
         {
+            // Abre el formulario y le pasa la lista para validar patentes duplicadas
             FormAuto formulario = new FormAuto(autos);
 
             if(formulario.ShowDialog() == DialogResult.OK)
             {
                 try
-                {
+                {   // Crea y agrega el nuevo auto con los datos ya validados
                     Auto auto = new Auto(
                         formulario.Patente,
                         formulario.Marca,
@@ -178,9 +193,11 @@ namespace Actividad_Integradora_1
                     throw new Exception("Debe seleccionar un auto.");
                 }
 
+                // Obtiene los objetos asociados a las filas seleccionadas
                 Persona personaSeleccionada = (Persona)dgvPersonas.CurrentRow.DataBoundItem;
                 Auto autoSeleccionado = (Auto)dgvAutos.CurrentRow.DataBoundItem;
 
+                // Agrega el auto seleccionado a la persona y establece a esa persona como su dueño
                 personaSeleccionada.AgregarAuto(autoSeleccionado);
 
                 ActualizarGrillaAutosDePersonas();
@@ -195,6 +212,8 @@ namespace Actividad_Integradora_1
 
         private void dgvPersonas_SelectionChanged(object sender, EventArgs e)
         {
+            // No actualiza la grilla secundaria mientras la grilla
+            // de personas se encuentra en proceso de recarga
             if(actualizandoGrillaPersonas)
             {
                 return;
@@ -214,10 +233,12 @@ namespace Actividad_Integradora_1
 
                 Persona personaSeleccionada = (Persona)dgvPersonas.CurrentRow.DataBoundItem;
 
+                // Abre el formulario cargando los datos actuales de la persona
                 FormPersona formulario = new FormPersona(personas, personaSeleccionada);
 
                 if(formulario.ShowDialog() == DialogResult.OK)
-                {
+                {  
+                    // Modifica el mismo objeto Persona con los nuevos datos
                     personaSeleccionada.DNI = formulario.DNI;
                     personaSeleccionada.Nombre = formulario.Nombre;
                     personaSeleccionada.Apellido = formulario.Apellido;
@@ -243,10 +264,12 @@ namespace Actividad_Integradora_1
 
                 Auto autoSeleccionado = (Auto)dgvAutos.CurrentRow.DataBoundItem;
 
+                // Abre el formulario cargando los datos actuales del auto
                 FormAuto formulario = new FormAuto(autos, autoSeleccionado);
 
                 if(formulario.ShowDialog() == DialogResult.OK)
                 {
+                    // Modifica el mismo objeto Auto con los nuevos datos
                     autoSeleccionado.Patente = formulario.Patente;
                     autoSeleccionado.Marca = formulario.Marca;
                     autoSeleccionado.Modelo = formulario.Modelo;
@@ -284,11 +307,14 @@ namespace Actividad_Integradora_1
 
                 if(respuesta == DialogResult.Yes)
                 {
+                    // Los autos de la persona siguen existiendo,
+                    // pero quedan sin dueño
                     foreach(Auto auto in personaSeleccionada.Lista_de_autos())
                     {
                         auto.QuitarDueño();
                     }
 
+                    // Elimina la persona de la lista principal
                     personas.Remove(personaSeleccionada);
 
                     ActualizarGrillaPersonas();
@@ -322,6 +348,8 @@ namespace Actividad_Integradora_1
 
                 if(respuesta == DialogResult.Yes)
                 {
+                    // Si el auto tiene dueño, primero se elimina
+                    // de la lista de autos de esa persona.
                     if(autoSeleccionado.Dueño() != null)
                     {
                         Persona dueño = autoSeleccionado.Dueño();
@@ -330,6 +358,7 @@ namespace Actividad_Integradora_1
                         autoSeleccionado.QuitarDueño();
                     }
 
+                    // Elimina el auto de la lista principal
                     autos.Remove(autoSeleccionado);
 
                     ActualizarGrillaAutos();

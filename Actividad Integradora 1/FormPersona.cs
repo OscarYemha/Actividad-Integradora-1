@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Actividad_Integradora_1
@@ -13,9 +7,13 @@ namespace Actividad_Integradora_1
     public partial class FormPersona : Form
     {
 
+        // Lista de persona existentes, utilizada para validar que el DNI no se repita
         private List<Persona> personas;
+        // Persona que se está modificando
+        // Es null cuando el formulario se utiliza par agregar una persona nueva
         private Persona personaActual;
 
+        // Constructor utilizara para agregar una persona nueva
         public FormPersona(List<Persona> personas)
         {
             InitializeComponent();
@@ -24,6 +22,8 @@ namespace Actividad_Integradora_1
             this.personaActual = null;
         }
 
+        // Constructor utilizado para modificar una persona existente.
+        // Carga en los TextBox los datos actuales de la persona.
         public FormPersona(List<Persona> personas, Persona personaActual)
         {
             InitializeComponent();
@@ -36,21 +36,26 @@ namespace Actividad_Integradora_1
             txtApellido.Text = personaActual.Apellido;
         }
 
+        // Devuelve el DNI ingresado sin espacios al principio o al final
         public string DNI
         {
             get { return txtDNI.Text.Trim(); }
         }
 
+        // Devuelve el nombre con el formato de letra capital
         public string Nombre
         {
             get { return FormatearNombre(txtNombre.Text); }
         }
 
+        // Devuelve el apellido con el formato de letra capital
         public string Apellido
         {
             get { return FormatearNombre(txtApellido.Text); }
         }
 
+        // Elimina espacios innecesarios y coloca en mayúscula
+        // la primera letra de cada palabra
         private string FormatearNombre(string texto)
         {
             string[] palabras = texto.Trim().ToLower().Split(' ');
@@ -76,7 +81,7 @@ namespace Actividad_Integradora_1
         private void btnAceptar_Click(object sender, EventArgs e)
         {
             try
-            {
+            {  //Validación de campos obligatorios, formatos y de no duplicación de DNI
                 if (string.IsNullOrWhiteSpace(txtDNI.Text))
                 {
                     throw new Exception("Debe ingresar un DNI.");
@@ -120,13 +125,13 @@ namespace Actividad_Integradora_1
                 }
 
                 foreach(Persona persona in personas)
-                {
+                {   // Se excluye persona actual para permitir conservar su propio DNI al modificar
                     if(persona != personaActual && persona.DNI == DNI)
                     {
                         throw new Exception("Ya existe una persona con ese DNI.");
                     }
                 }
-
+                // Si todas las validaciones fueron correctas, se cierra el formulario
                 DialogResult = DialogResult.OK;
                 Close();
             }
