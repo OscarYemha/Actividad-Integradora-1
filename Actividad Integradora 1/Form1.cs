@@ -27,7 +27,15 @@ namespace Actividad_Integradora_1
             actualizandoGrillaPersonas = true;
 
             dgvPersonas.DataSource = null;
-            dgvPersonas.DataSource = personas;
+
+            if(personas.Count > 0 )
+            {
+                dgvPersonas.DataSource = personas;
+            }
+            else
+            {
+                dgvPersonas.Columns.Clear();
+            }
 
             // Deja la grilla sin una fila seleccionada automáticamente
             dgvPersonas.ClearSelection();
@@ -40,9 +48,17 @@ namespace Actividad_Integradora_1
         private void ActualizarGrillaAutos()
         {
             dgvAutos.DataSource = null;
-            dgvAutos.DataSource = autos;
 
-            // Deja la grilla sin una fila seleccionada auutomáticamente
+            if (autos.Count > 0)
+            {
+                dgvAutos.DataSource = autos;
+            }
+            else
+            {
+                dgvAutos.Columns.Clear();
+            }
+
+                // Deja la grilla sin una fila seleccionada auutomáticamente
             dgvAutos.ClearSelection();
             dgvAutos.CurrentCell = null;
         }
@@ -112,11 +128,20 @@ namespace Actividad_Integradora_1
             }
 
             dgvVistaGeneral.DataSource = null;
-            dgvVistaGeneral.DataSource = listaVista;
 
-            // Modifica únicamente los textos visibles de los encabezados
-            dgvVistaGeneral.Columns["DNI"].HeaderText = "DNI del dueño";
-            dgvVistaGeneral.Columns["ApellidoNombre"].HeaderText = "Apellido, nombre";
+            if (listaVista.Count > 0 )
+            {
+                dgvVistaGeneral.DataSource = listaVista;
+
+                // Modifica únicamente los textos visibles de los encabezados
+                dgvVistaGeneral.Columns["DNI"].HeaderText = "DNI del dueño";
+                dgvVistaGeneral.Columns["ApellidoNombre"].HeaderText = "Apellido, nombre";
+            }
+            else
+            {
+                dgvVistaGeneral.Columns.Clear();
+            }
+
                 
             dgvVistaGeneral.ClearSelection();
             dgvVistaGeneral.CurrentCell = null;
